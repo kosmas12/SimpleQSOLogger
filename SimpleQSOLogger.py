@@ -23,9 +23,9 @@ class LoggerWindow(QWidget):
         self.btnSSB = QRadioButton("SSB")
         self.btnStime = QPushButton("Click to log start time")
         self.btnEtime = QPushButton("Click to log end time")
-        self.btnSubmit = QPushButton("Log to database (" + userCallsign + ".db)") # Φτιάξε κουμπί push
-        self.Layout = QVBoxLayout() # Ξεκίνα το layout
-        self.Layout.addWidget(self.name) # Βάλε όλα τα πλαίσια και κουμπιά που φτιάξαμε
+        self.btnSubmit = QPushButton("Log to database (" + userCallsign + ".db)")
+        self.Layout = QVBoxLayout() # Start the layout
+        self.Layout.addWidget(self.name) # Add everything to the window
         self.Layout.addWidget(self.callsign)
         self.Layout.addWidget(self.btnDigital)
         self.Layout.addWidget(self.btnFT4)
@@ -38,8 +38,8 @@ class LoggerWindow(QWidget):
         self.Layout.addWidget(self.btnStime)
         self.Layout.addWidget(self.btnEtime)
         self.Layout.addWidget(self.btnSubmit)
-        self.setLayout(self.Layout) # Όρισε το layout του LoggerWindow
-        self.btnSubmit.clicked.connect(self.log) # Συνέδεσε το πατημένο κουμπί submit στο self με το function log στο self
+        self.setLayout(self.Layout) # Set the layout of LoggerWindow
+        self.btnSubmit.clicked.connect(self.log) # Connect btnSubmit on self to the log function on self
         self.btnStime.clicked.connect(self.getStartTime)
         self.btnEtime.clicked.connect(self.getEndTime)
 
@@ -52,9 +52,9 @@ class LoggerWindow(QWidget):
         self.Edatetime = self.Edatetime.strftime("%B %d, %Y, %H:%M:%S")
 
     def log(self):
-        db = sqlite3.connect(userCallsign + ".db") # Συνδέσου με τη βάση δεδομένων
-        c = db.cursor() # Ξεκίνα το κέρσορα της βάσης δεδομένων
-        c.execute("CREATE TABLE IF NOT EXISTS contact (name, callsign, mode, Start_time, End_time)") # Φτιάξε το "τραπέζι" δεδομένων contact άμα δεν υπάρχει, με δεδομένα name, callsign, mode
+        db = sqlite3.connect(userCallsign + ".db") # Connect with the database
+        c = db.cursor() # Start DB cursor
+        c.execute("CREATE TABLE IF NOT EXISTS contact (name, callsign, mode, Start_time, End_time)") # Make the data table
         if (self.btnDigital.isChecked()) :
             self.mode = "DIGITALVOICE"
         if (self.btnFT4.isChecked()): 
@@ -78,15 +78,15 @@ class LoggerWindow(QWidget):
                  (self.Sdatetime),
                  (self.Edatetime),]
 
-        c.executemany("INSERT INTO contact (name, callsign, mode, Start_time, End_time) VALUES (?, ?, ?, ?, ?)", [contact]) # Γράψε τα δεδομένα στο "τραπέζι"
-        db.commit() # Αποθήκευσε στο δίσκο
-        db.close() # Κλείσε τη σύνδεση με τη βάση δεδομένων
-        self.destroy(1, 1) # Διέγραψε το LoggerWindow και όλα τα υποπαράθυρά του
-        self.show() # Ξαναεμφανίσου
+        c.executemany("INSERT INTO contact (name, callsign, mode, Start_time, End_time) VALUES (?, ?, ?, ?, ?)", [contact]) # Write the data to the table
+        db.commit() # Save to disk
+        db.close()
+        self.destroy(1, 1) # Delete LoggerWindow and all subwindows
+        self.show()
 
-app = QApplication([]) # Ξεκινάμε την εφαρμογή
+app = QApplication([]) # Start the app
 
-window = LoggerWindow() # Φτιάχνουμε το LoggerWindow
-window.show() # Εμφάνισε το LoggerWindow
+window = LoggerWindow() # Make the LoggerWindow
+window.show() # Show LoggerWindow
 
-app.exec_() # Τρέξε την εφαρμογή
+app.exec_() # Run the app
