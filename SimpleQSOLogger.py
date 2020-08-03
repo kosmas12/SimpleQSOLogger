@@ -1,5 +1,4 @@
 from PySide2.QtWidgets import *
-from PySide2.QtCore import Slot
 import sqlite3
 from datetime import datetime
 import pytz
@@ -7,6 +6,8 @@ import pytz
 UTC = pytz.utc
 userCallsign = input("Enter your callsign: ")
 mode = None
+
+modes = ["DIGITALVOICE", "FT4", "FT8", "CW", "AM", "FM", "RTTY", "SSB"]
 
 class LoggerWindow(QWidget):
     def __init__(self, parent=None):
@@ -24,8 +25,17 @@ class LoggerWindow(QWidget):
         self.btnStime = QPushButton("Click to log start time")
         self.btnEtime = QPushButton("Click to log end time")
         self.btnSubmit = QPushButton("Log to database (" + userCallsign + ".db)")
-        self.Layout = QVBoxLayout() # Start the layout
-        self.Layout.addWidget(self.name) # Add everything to the window
+        self.Layout = QVBoxLayout()
+        self.setLayout(self.Layout) # Set the layout of LoggerWindow
+        self.btnSubmit.clicked.connect(self.log) # Connect btnSubmit on self to the log function on self
+        self.btnStime.clicked.connect(self.getStartTime)
+        self.btnEtime.clicked.connect(self.getEndTime)
+        self.addWidgets()
+        self.groupButtons()
+        
+    def addWidgets(self):
+        # Add everything to the window
+        self.Layout.addWidget(self.name)
         self.Layout.addWidget(self.callsign)
         self.Layout.addWidget(self.btnDigital)
         self.Layout.addWidget(self.btnFT4)
@@ -38,10 +48,17 @@ class LoggerWindow(QWidget):
         self.Layout.addWidget(self.btnStime)
         self.Layout.addWidget(self.btnEtime)
         self.Layout.addWidget(self.btnSubmit)
-        self.setLayout(self.Layout) # Set the layout of LoggerWindow
-        self.btnSubmit.clicked.connect(self.log) # Connect btnSubmit on self to the log function on self
-        self.btnStime.clicked.connect(self.getStartTime)
-        self.btnEtime.clicked.connect(self.getEndTime)
+        
+    def groupButtons(self):
+        self.buttonGroup = QButtonGroup()
+        self.buttonGroup.addButton(self.btnDigital, 0)
+        self.buttonGroup.addButton(self.btnFT4, 1)
+        self.buttonGroup.addButton(self.btnFT8, 2)
+        self.buttonGroup.addButton(self.btnCW, 3)
+        self.buttonGroup.addButton(self.btnAM, 4)
+        self.buttonGroup.addButton(self.btnFM, 5)
+        self.buttonGroup.addButton(self.btnRTTY, 6)
+        self.buttonGroup.addButton(self.btnSSB, 7)
 
     def getStartTime(self):
         self.Sdatetime = datetime.now(UTC)
@@ -55,26 +72,12 @@ class LoggerWindow(QWidget):
         db = sqlite3.connect(userCallsign + ".db") # Connect with the database
         c = db.cursor() # Start DB cursor
         c.execute("CREATE TABLE IF NOT EXISTS contact (name, callsign, mode, Start_time, End_time)") # Make the data table
-        if (self.btnDigital.isChecked()) :
-            self.mode = "DIGITALVOICE"
-        if (self.btnFT4.isChecked()): 
-            self.mode = "FT4"
-        if (self.btnFT8.isChecked()): 
-            self.mode = "FT8"
-        if (self.btnCW.isChecked()): 
-            self.mode = "CW"
-        if (self.btnAM.isChecked()): 
-            self.mode = "AM"
-        if (self.btnFM.isChecked()): 
-            self.mode = "FM"
-        if (self.btnRTTY.isChecked()): 
-            self.mode = "RTTY"
-        if (self.btnSSB.isChecked()): 
-            self.mode = "SSB"
+        selectedButtonID = self.buttonGroup.checkedId()
+        mode = modes[selectedButtonID]
 
         contact = [(self.name.text()),
                  (self.callsign.text()),
-                 (self.mode),
+                 (mode),
                  (self.Sdatetime),
                  (self.Edatetime),]
 
