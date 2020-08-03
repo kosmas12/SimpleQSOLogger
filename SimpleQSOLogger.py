@@ -16,6 +16,7 @@ class LoggerWindow(QWidget):
         super(LoggerWindow, self).__init__(parent) # Start LoggerWindow
         self.name = QLineEdit("Name")
         self.callsign = QLineEdit("Callsign")
+        self.qth = QLineEdit("QTH")
         self.modesLabel = QLabel("<font color=gray size = 5>Modes</font>")
         self.btnDigital = QRadioButton("DIGITAL VOICE")
         self.btnFT4 = QRadioButton("FT4")
@@ -50,6 +51,7 @@ class LoggerWindow(QWidget):
         # Add everything to the window
         self.Layout.addWidget(self.name)
         self.Layout.addWidget(self.callsign)
+        self.Layout.addWidget(self.qth)
         self.Layout.addWidget(self.modesLabel)
         self.Layout.addWidget(self.btnDigital)
         self.Layout.addWidget(self.btnFT4)
@@ -106,7 +108,7 @@ class LoggerWindow(QWidget):
     def log(self):
         db = sqlite3.connect(userCallsign + ".db") # Connect with the database
         c = db.cursor() # Start DB cursor
-        c.execute("CREATE TABLE IF NOT EXISTS contact (name, callsign, mode, band, Start_time, End_time)") # Make the data table
+        c.execute("CREATE TABLE IF NOT EXISTS contact (name, callsign, QTH, Mode, Band, Start_Time, End_Time)") # Make the data table
         selectedModeButtonID = self.modeButtonGroup.checkedId()
         mode = modes[selectedModeButtonID]
         selectedBandButtonID = self.bandButtonGroup.checkedId()
@@ -114,12 +116,13 @@ class LoggerWindow(QWidget):
 
         contact = [(self.name.text()),
                  (self.callsign.text()),
+                 (self.qth.text()),
                  (mode),
                  (band),
                  (self.Sdatetime),
                  (self.Edatetime),]
 
-        c.executemany("INSERT INTO contact (name, callsign, mode, band, Start_time, End_time) VALUES (?, ?, ?, ?, ?, ?)", [contact]) # Write the data to the table
+        c.executemany("INSERT INTO contact (Name, Callsign, QTH, Mode, Band, Start_Time, End_Time) VALUES (?, ?, ?, ?, ?, ?, ?)", [contact]) # Write the data to the table
         db.commit() # Save to disk
         db.close()
         self.destroy(1, 1) # Delete LoggerWindow and all subwindows
