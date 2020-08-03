@@ -108,7 +108,7 @@ class LoggerWindow(QWidget):
     def log(self):
         db = sqlite3.connect(userCallsign + ".db") # Connect with the database
         c = db.cursor() # Start DB cursor
-        c.execute("CREATE TABLE IF NOT EXISTS contact (name, callsign, QTH, Mode, Band, Start_Time, End_Time)") # Make the data table
+        c.execute("CREATE TABLE IF NOT EXISTS contact (Name, Callsign, QTH, Mode, Band, Start_Time, End_Time)") # Make the data table
         selectedModeButtonID = self.modeButtonGroup.checkedId()
         mode = modes[selectedModeButtonID]
         selectedBandButtonID = self.bandButtonGroup.checkedId()
